@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Circle | Bannari Amman Institute of Technology</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS for themes, animations, and 3D effects -->
+    <style>
+        :root {
+            --bg-color-dark: #0a0a0f;
+            --card-bg-dark: rgba(17, 24, 39, 0.7); /* More opaque */
+            --border-color-dark: rgba(255, 255, 255, 0.1);
+            --text-color-dark: #e6edf3;
+            --text-muted-dark: #8b949e;
+            --header-bg-dark: rgba(10, 10, 15, 0.7);
+
+            --bg-color-light: #f6f8fa;
+            --card-bg-light: rgba(255, 255, 255, 0.8); /* More opaque */
+            --border-color-light: rgba(0, 0, 0, 0.1);
+            --text-color-light: #1f2328;
+            --text-muted-light: #57606a;
+            --header-bg-light: rgba(246, 248, 250, 0.7);
+            
+            --primary-color: #4f46e5;
+            --secondary-color: #7c3aed;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color-dark);
+            color: var(--text-color-dark);
+            overflow-x: hidden;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+        
+        body.light {
+            background-color: var(--bg-color-light);
+            color: var(--text-color-light);
+        }
+
+        .gradient-text {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+
+        .glass-card {
+            background: var(--card-bg-dark);
+            backdrop-filter: blur(16px) saturate(150%);
+            -webkit-backdrop-filter: blur(16px) saturate(150%);
+            border: 1px solid var(--border-color-dark);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        body.light .glass-card {
+            background: var(--card-bg-light);
+            border: 1px solid var(--border-color-light);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+        }
+        .glass-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .header-bg {
+             background-color: var(--header-bg-dark);
+             backdrop-filter: blur(10px);
+        }
+        body.light .header-bg {
+             background-color: var(--header-bg-light);
+        }
+        .header-shadow {
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-content { display: none; animation: fadeIn 0.8s ease-out; }
+        .page-content.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .nav-link.active { color: var(--primary-color); font-weight: 600; }
+        .tab-btn.active { background-color: var(--primary-color); color: white; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.5); }
+        
+        #theme-toggle-btn .sun-icon { display: none; }
+        #theme-toggle-btn .moon-icon { display: block; }
+        body.light #theme-toggle-btn .sun-icon { display: block; }
+        body.light #theme-toggle-btn .moon-icon { display: none; }
+
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -1;
+        }
+        
+        main {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background: var(--card-bg-dark);
+            border: 1px solid var(--border-color-dark);
+            padding: 2rem;
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 500px;
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+        body.light .modal-content {
+             background: var(--card-bg-light);
+             border: 1px solid var(--border-color-light);
+        }
+
+        /* Form styling */
+        .form-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color-dark);
+            color: var(--text-color-dark);
+        }
+        body.light .form-input {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: var(--border-color-light);
+            color: var(--text-color-light);
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <canvas id="bg-canvas"></canvas>
+
+    <header id="header" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 header-bg">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <nav class="flex items-center justify-between h-20">
+                <a href="#home" class="text-2xl font-bold nav-link">Code<span class="gradient-text">Circle</span></a>
+                <div class="hidden md:flex items-center space-x-6 lg:space-x-8">
+                    <a href="#home" class="nav-link hover:text-indigo-400 transition-colors duration-300">Home</a>
+                    <a href="#about" class="nav-link hover:text-indigo-400 transition-colors duration-300">About</a>
+                    <a href="#events" class="nav-link hover:text-indigo-400 transition-colors duration-300">Events</a>
+                    <a href="#team" class="nav-link hover:text-indigo-400 transition-colors duration-300">Team</a>
+                    <a href="#contact" class="nav-link hover:text-indigo-400 transition-colors duration-300">Contact</a>
+                </div>
+                <div class="flex items-center space-x-2 sm:space-x-4">
+                    <div id="google_translate_element"></div>
+                    <button id="theme-toggle-btn" class="p-2 rounded-full hover:bg-white/10 dark:hover:bg-black/10 transition-colors">
+                        <svg class="w-6 h-6 moon-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                        <svg class="w-6 h-6 sun-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    </button>
+                    <div class="md:hidden">
+                        <button id="mobile-menu-button" class="focus:outline-none p-2">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden header-bg">
+            <a href="#home" class="nav-link block py-3 px-4 text-sm">Home</a>
+            <a href="#about" class="nav-link block py-3 px-4 text-sm">About</a>
+            <a href="#events" class="nav-link block py-3 px-4 text-sm">Events</a>
+            <a href="#team" class="nav-link block py-3 px-4 text-sm">Team</a>
+            <a href="#contact" class="nav-link block py-3 px-4 text-sm">Contact</a>
+        </div>
+    </header>
+
+    <main class="pt-20">
+        <!-- Home Page -->
+        <section id="page-home" class="page-content">
+            <div class="relative min-h-[calc(100vh-5rem)] flex items-center justify-center">
+                <div class="text-center z-10 px-4">
+                    <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold leading-tight mb-4">Empowering Coders, <br class="hidden md:block"> Fostering <span class="gradient-text">Innovation</span>.</h1>
+                    <p class="text-lg md:text-xl max-w-3xl mx-auto mb-8 body-text-muted">Welcome to the official hub of Code Circle at Bannari Amman Institute of Technology. A community for aspiring developers and problem solvers.</p>
+                    <a href="#about" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-10 rounded-full text-lg transition duration-300 ease-in-out transform hover:scale-105 shadow-lg shadow-indigo-500/40">Discover More</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Page -->
+        <section id="page-about" class="page-content">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-24">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-bold">About <span class="gradient-text">Code Circle</span></h2>
+                    <p class="body-text-muted mt-3 text-lg">Our Foundation, Goals, and Aspirations</p>
+                </div>
+                <div class="grid lg:grid-cols-2 gap-16 items-center">
+                    <div class="space-y-6">
+                        <h3 class="text-3xl font-semibold">Who We Are</h3>
+                        <p class="leading-relaxed text-justify body-text-muted">Code Circle club was inaugurated on April 4, 2021, at Bannari Amman Institute of Technology, Sathyamangalam. We focus on providing a gateway for budding code seekers in our institute. We constitute a platform that allows seekers to ameliorate their coding ability. The endeavor of our crew is to escalate the enthusiasm for coding among the budding seekers and well-versed coders in our institute.</p>
+                    </div>
+                    <div class="space-y-8">
+                        <div class="glass-card p-8 rounded-xl"><h4 class="font-semibold text-2xl mb-3">Our Vision</h4><p class="body-text-muted">To improve the art of competitive programming skills among the students and to train them ready for reputed competitions, events conducted at national and international levels.</p></div>
+                        <div class="glass-card p-8 rounded-xl"><h4 class="font-semibold text-2xl mb-3">Our Mission</h4><p class="body-text-muted">To create a supportive environment to develop coding skills, analytical thinking, and problem-solving skills together. To replace coding anxiety with inspiration and motivation to learn and collaborate.</p></div>
+                    </div>
+                </div>
+                <div class="mt-20">
+                    <h3 class="text-3xl font-semibold text-center mb-10">Our Objectives</h3>
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="glass-card p-8 rounded-xl text-center"><p class="text-lg">To motivate students towards competitive programming.</p></div>
+                        <div class="glass-card p-8 rounded-xl text-center"><p class="text-lg">To collaborate with other students for coding.</p></div>
+                        <div class="glass-card p-8 rounded-xl text-center"><p class="text-lg">To improve the approach of students towards problem-solving.</p></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Events Page -->
+        <section id="page-events" class="page-content">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-24">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-bold">Club <span class="gradient-text">Activities</span></h2>
+                    <p class="body-text-muted mt-3 text-lg">A Glimpse into Our Journey of Learning and Fun</p>
+                </div>
+                <div class="flex justify-center mb-10">
+                    <div class="flex space-x-1 sm:space-x-2 md:space-x-4 glass-card p-2 rounded-full">
+                        <button class="tab-btn px-3 py-2 md:px-6 md:py-3 text-sm md:text-base font-semibold rounded-full transition-all duration-300" data-year="2024-2025">2024-25</button>
+                        <button class="tab-btn px-3 py-2 md:px-6 md:py-3 text-sm md:text-base font-semibold rounded-full transition-all duration-300" data-year="2023-2024">2023-24</button>
+                        <button class="tab-btn px-3 py-2 md:px-6 md:py-3 text-sm md:text-base font-semibold rounded-full transition-all duration-300" data-year="2022-2023">2022-23</button>
+                        <button class="tab-btn px-3 py-2 md:px-6 md:py-3 text-sm md:text-base font-semibold rounded-full transition-all duration-300" data-year="2021-2022">2021-22</button>
+                    </div>
+                </div>
+                
+                <div id="event-content" class="space-y-8"></div>
+            </div>
+        </section>
+        
+        <!-- Team Page -->
+        <section id="page-team" class="page-content">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-24">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-bold">Meet Our <span class="gradient-text">Team</span></h2>
+                    <p class="body-text-muted mt-3 text-lg">The Driving Force Behind Code Circle</p>
+                </div>
+
+                <div class="mb-16">
+                    <h3 class="text-3xl font-semibold text-center mb-10">Faculty Incharge</h3>
+                    <div id="faculty-team" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-4xl mx-auto"></div>
+                </div>
+
+                <div>
+                    <h3 class="text-3xl font-semibold text-center mb-10">Student Core Team</h3>
+                    <div id="student-team" class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Contact Page -->
+        <section id="page-contact" class="page-content">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-24">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-bold">Get In <span class="gradient-text">Touch</span></h2>
+                    <p class="body-text-muted mt-3 text-lg">Have a question or a suggestion? We'd love to hear from you.</p>
+                </div>
+
+                <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-12">
+                    <div class="space-y-6">
+                        <h3 class="text-2xl font-semibold">Contact Information</h3>
+                        <p class="body-text-muted">For any general inquiries, collaborations, or event-related questions, please don't hesitate to reach out to us.</p>
+                        <div>
+                            <p class="font-semibold">General Inquiries Email:</p>
+                            <a href="mailto:codecircle@bitsathy.ac.in" class="gradient-text font-medium hover:underline">codecircle@bitsathy.ac.in</a>
+                        </div>
+                        <div>
+                            <p class="font-semibold">Location:</p>
+                            <p class="body-text-muted">Bannari Amman Institute of Technology,<br>Sathyamangalam, Erode, Tamil Nadu.</p>
+                        </div>
+                    </div>
+                    <div class="glass-card p-8 rounded-2xl">
+                        <form id="query-form" class="space-y-4">
+                            <h3 class="text-2xl font-semibold mb-4 text-center">Send a Query</h3>
+                            <div><input type="text" placeholder="Your Name" class="form-input w-full p-3 rounded-lg" required></div>
+                            <div><input type="text" placeholder="Roll No" class="form-input w-full p-3 rounded-lg" required></div>
+                            <div><input type="text" placeholder="Department" class="form-input w-full p-3 rounded-lg" required></div>
+                            <div><input type="tel" placeholder="Phone Number" class="form-input w-full p-3 rounded-lg"></div>
+                            <div><textarea placeholder="Your Query" rows="4" class="form-input w-full p-3 rounded-lg" required></textarea></div>
+                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg transition duration-300 ease-in-out transform hover:scale-105">Submit Query</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <!-- Team Member Modal -->
+    <div id="team-modal" class="modal-overlay">
+        <div id="modal-content" class="modal-content relative">
+            <!-- Modal content will be injected here by JavaScript -->
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE, autoDisplay: false}, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- DATA OBJECTS (UPDATED) ---
+            const eventData = {
+                "2024-2025": [
+                    { title: "BYTESTART 2024", date: "October 5, 2024", description: "A formal inauguration for the 2024-2028 batch, designed to bridge the gap between juniors and seniors and to spark enthusiasm for upcoming club events through interactive sessions and a technical game.", objective: "To welcome freshers and integrate them into the club's culture.", outcome: "Strengthened senior-junior bonding and identified actively engaged new students." },
+                    { title: "BYTECONNECT 2024", date: "November 7, 2024", description: "An open 'Meet and Greet' for students to interact with club members, clarify doubts about events, and gain insights from a special tech talk on industry trends.", objective: "To foster open communication and provide clear guidance on club activities.", outcome: "Improved student clarity on the club's roadmap and motivated them through shared knowledge." },
+                    { title: "Code Saga '24", date: "December 18 & 19, 2024", description: "A high-energy, 2-day event with multiple rounds including Aptitude, Code Debugging, a Tech Quiz, and a Figma Challenge to test a wide range of skills.", objective: "To challenge students' analytical, coding, and design abilities in a competitive format.", outcome: "Successfully assessed multi-dimensional skills and exposed participants to diverse problem-solving scenarios." },
+                    { title: "Code With Curious (CWC 1.0)", date: "February 7-20, 2025", description: "A 14-day gamified marathon event with daily tasks, battles, and eliminations, testing skills in C, Python, Figma, and HTML.", objective: "To promote technical excellence, teamwork, and adaptability under pressure.", outcome: "Enhanced collaboration, time management, and resilience among participants." },
+                    { title: "Frontend Frenzy 2.0", date: "March 21 & 22, 2025", description: "A UI/UX and Frontend tech sprint that included an SQL Challenge, HTML code review, and a creative webpage design challenge.", objective: "To reinforce frontend development concepts and bridge the gap between design and implementation.", outcome: "Improved student understanding of the full frontend workflow from database to design." },
+                    { title: "CODEX '25", date: "April 7, 2025", description: "A compact, one-day technical sprint focusing on database and scripting languages, with intense SQL and Python challenges.", objective: "To sharpen core database and programming skills in a fast-paced, competitive environment.", outcome: "Strengthened participants' analytical and structured coding approaches." },
+                ],
+                "2023-2024": [/* Data remains the same */],
+                "2022-2023": [/* Data remains the same */],
+                "2021-2022": [/* Data remains the same */]
+            };
+            // Populate older event data
+            Object.assign(eventData, {"2023-2024":[{"title":"Front End Frenzy 24","date":"25.03.2024","description":"A competitive event focused on modern front-end technologies. Participants were challenged to build responsive and visually appealing web interfaces based on a given problem statement.","objective":"To enhance students' skills in HTML, CSS, and JavaScript frameworks.","outcome":"Participants produced a variety of creative web designs and improved their practical front-end coding abilities."},{"title":"Code Fest","date":"14.02.2024","description":"A festival of code celebrating Valentine's Day with a fun, themed coding competition. Problems were designed to be solved in pairs, encouraging collaboration.","objective":"To promote pair programming and make competitive coding more engaging and accessible.","outcome":"Increased student participation in coding events and fostered a collaborative spirit."},{"title":"Code Circle Club Inauguration","date":"16.09.2023","description":"The official inauguration ceremony for the 2023-24 academic year, outlining the club's vision, mission, and planned activities for the year.","objective":"To formally launch the club's activities and recruit new members.","outcome":"Generated significant interest among students, leading to a successful recruitment drive."},{"title":"Coding Challenges in Space Missile","date":"04.09.2023","description":"An advanced workshop and competition centered on complex algorithms and data structures, themed around space and missile technology simulations.","objective":"To challenge advanced coders with real-world complex problem-solving scenarios.","outcome":"Top participants demonstrated exceptional algorithmic thinking and problem-solving skills."}],"2022-2023":[{"title":"Inauguration & Guest Lecture","date":"28.01.2023","description":"The club's inauguration combined with an inspiring guest lecture on the 'Importance of Coding Contests in IT Industry Recruitment' by an industry expert.","objective":"To provide students with industry insights and motivate them for competitive programming.","outcome":"Students gained a clearer understanding of industry expectations and the value of competitive coding."},{"title":"Orientation Program on Code Circle","date":"03.12.2022","description":"An orientation program for new members to introduce them to the club's structure, mentors, and the resources available to them.","objective":"To smoothly onboard new members and set clear expectations.","outcome":"New members were successfully integrated into the club and were aware of the learning pathways available."},{"title":"Kode Git Fest","date":"14.08.2022","description":"A hands-on workshop and competition focused on version control using Git and GitHub. Participants learned branching, merging, and collaborative workflows.","objective":"To equip students with essential version control skills for team projects.","outcome":"Participants gained practical experience with Git and were prepared for collaborative development."}],"2021-2022":[{"title":"Hands on Workshop - Stepping into RPA","date":"22.03.2022","description":"A workshop introducing the fundamentals of Robotic Process Automation (RPA). Students learned to build simple software bots to automate repetitive tasks.","objective":"To introduce students to the emerging field of RPA and its applications.","outcome":"Participants built their first software bots and understood the basics of process automation."},{"title":"C++ Winter Camp 2021-22","date":"06.12.2021 - 07.01.2022","description":"A month-long intensive winter camp covering everything from basic to advanced C++ concepts, including data structures and algorithms.","objective":"To provide a deep and comprehensive understanding of C++ for competitive programming.","outcome":"A significant improvement in the C++ proficiency and problem-solving skills of the attendees."},{"title":"Orientation Program for First Year","date":"23.11.2021","description":"A special orientation session for first-year students to introduce them to the world of coding and the benefits of joining the Code Circle club.","objective":"To inspire and guide first-year students towards a path of coding excellence.","outcome":"A large number of first-year students joined the club and began their coding journey."},{"title":"ENIGMA","date":"18.11.2021","description":"A cryptic hunt and coding challenge event where participants had to solve puzzles to unlock programming problems.","objective":"To merge logical reasoning with coding skills in a fun and challenging format.","outcome":"The event was highly engaging and tested the analytical and coding skills of participants in a unique way."},{"title":"Webinar on “Journey to Google”","date":"22.08.2021","description":"An inspirational webinar featuring a BIT alumnus working at Google, who shared their journey, preparation strategies, and tips for landing a job at a top tech company.","objective":"To motivate students and provide a clear roadmap for achieving career goals.","outcome":"Students were highly motivated and gained actionable advice for their career preparation."}]});
+
+            const facultyData = [
+                { name: 'Mrs. Nandhini K M', role: 'Club Faculty Incharge', email: 'nandhinikm@bitsathy.ac.in', responsibilities: 'As a key faculty advisor, Mrs. Nandhini provides strategic guidance to the club, ensuring its activities align with the department\'s academic goals. She mentors the student board and facilitates access to institutional resources.' },
+                { name: 'Mr. Dhanasekar R', role: 'Club Faculty Incharge', email: 'dhanasekar@bitsathy.ac.in', responsibilities: 'Mr. Dhanasekar plays a crucial role in overseeing the technical events conducted by the club. He helps in vetting problem statements, judging competitions, and ensuring a high standard of technical quality in all activities.' },
+                { name: 'Mrs. Pooja A S', role: 'Club Faculty Incharge', email: 'pooja@bitsathy.ac.in', responsibilities: 'Mrs. Pooja focuses on the overall development and outreach of the club. She assists in managing club logistics, coordinating with other departments, and promoting a culture of inclusive learning and collaboration among students.' },
+            ];
+
+            const studentData = [
+                { name: "Jai Prasad R", role: "President", dept: "ECE", email: "jaiprasad.ec21@bitsathy.ac.in", responsibilities: "Leads the club's overall strategy, presides over meetings, and represents the club at an institutional level." },
+                { name: "Surya Raj S", role: "Vice President", dept: "AIML", phone: "8072137522", email: "suryaraj.al23@bitsathy.ac.in", responsibilities: "Assists the President in managing operations, plans major events, and coordinates between different teams." },
+                { name: "Lathika S", role: "Vice President", dept: "AIML", phone: "6385213303", email: "lathika.al23@bitsathy.ac.in", responsibilities: "Manages and executes club activities, focusing on student engagement and ensuring events run smoothly." },
+                { name: "Ahill Pranav", role: "People Management Coordinator", dept: "CT", phone: "9940911411", email: "ahillpranav.ct23@bitsathy.ac.in", responsibilities: "Manages member relations, recruitment drives, and organizes team-building activities to foster a strong community." },
+                { name: "Hima Shree K", role: "Secretary", dept: "AIML", phone: "9092533465", email: "himashree.al23@bitsathy.ac.in", responsibilities: "Handles all official documentation, prepares meeting agendas, and manages the club's communications." },
+                { name: "Swetha Gayathri V", role: "Joint Secretary", dept: "AIML", phone: "9342896561", email: "swethagayathri.al23@bitsathy.ac.in", responsibilities: "Supports the Secretary in administrative tasks, helps in drafting reports, and manages event registrations." },
+                { name: "Kowshika D", role: "Treasurer", dept: "AIML", email: "kowshika.al23@bitsathy.ac.in", responsibilities: "Manages the club's finances, budgets for events, and maintains financial records." },
+                { name: "Priya Dharshini K", role: "Joint Treasurer", dept: "AIML", email: "priyadharshini.al23@bitsathy.ac.in", responsibilities: "Assists the Treasurer in financial management and event budgeting." },
+                { name: "Mathivathani R V", role: "Student Relation Coordinator", dept: "AIML", email: "mathivathani.al23@bitsathy.ac.in", responsibilities: "Acts as a bridge between the club members and the board, gathers feedback, and resolves member queries." },
+                { name: "Gyanah Prakash V S", role: "Club Development Head", dept: "AIML", email: "gyanahprakashvs.al23@bitsathy.ac.in", responsibilities: "Identifies opportunities for club growth, forges collaborations, and plans long-term development strategies." },
+                { name: "Preethika E", role: "Event Coordinator", dept: "ISE", email: "preethika.se23@bitsathy.ac.in", responsibilities: "Leads the planning and execution of club events from conception to completion." },
+                { name: "Naresh", role: "Creative Head", dept: "CT", email: "naresh.ct23@bitsathy.ac.in", responsibilities: "Manages the club's visual identity, designing posters, social media creatives, and other promotional materials." },
+                { name: "Pooja K", role: "Innovative Lead", dept: "ISE", email: "pooja.se23@bitsathy.ac.in", responsibilities: "Drives innovation by conceptualizing new and unique event formats and club activities." },
+                { name: "Hari Hara Sudhan N", role: "Content Writer", dept: "CSBS", email: "hariharasudhan.cb23@bitsathy.ac.in", responsibilities: "Creates written content for social media, event descriptions, reports, and the club's official communications." },
+                { name: "Suryanarayana B G", role: "Club Quality Coordinator", dept: "ECE", email: "suryanarayana.ec23@bitsathy.ac.in", responsibilities: "Ensures all club activities meet a high standard of quality, from technical content to event management." },
+                { name: "Harshavarthini", role: "Technical Lead", dept: "CSD", email: "harshavarthini.cd23@bitsathy.ac.in", responsibilities: "Co-leads the technical wing, curates coding problems, and mentors members in competitive programming." },
+                { name: "Sudharshan S", role: "Technical Lead", dept: "AIML", email: "sudharshan.al23@bitsathy.ac.in", responsibilities: "Specializes in organizing coding contests and developing technical content to enhance problem-solving skills." },
+                { name: "Mohanakrishnan K J", role: "Event Manager", dept: "CT", email: "mohanakrishna.ct23@bitsathy.ac.in", responsibilities: "Manages the on-ground logistics and execution of events, ensuring they run without a hitch." },
+                { name: "Aniruth J R", role: "Event Management Lead", dept: "CT", email: "aniruth.ct23@bitsathy.ac.in", responsibilities: "Leads the event management team, coordinating volunteers and overseeing all logistical aspects of events." },
+                { name: "Mithunram S U", role: "Club Technical Support", dept: "AIML", email: "mithunram.al23@bitsathy.ac.in", responsibilities: "Provides technical assistance during workshops and events, resolving hardware and software issues." },
+                { name: "Madesh Kumar M", role: "Technical Support Lead", dept: "AIML", email: "madeshkumar.al23@bitsathy.ac.in", responsibilities: "Leads the technical support team, ensuring all equipment and platforms for events are ready and functional." },
+                { name: "Raaghav K S", role: "News Letter Editor", dept: "CT", email: "raaghav.ct23@bitsathy.ac.in", responsibilities: "Compiles, edits, and publishes the club's periodic newsletters, summarizing activities and achievements." },
+                { name: "Harish R", role: "Social Media Manager", dept: "CSE", email: "harishr.cs23@bitsathy.ac.in", responsibilities: "Manages the club's presence across all social media platforms, engaging with the online community." },
+            ];
+            
+            // --- CORE LOGIC (Navigation, Theme, etc.) ---
+            const body = document.body;
+            const applyTheme = (theme) => {
+                body.classList.toggle('light', theme === 'light');
+                localStorage.setItem('theme', theme);
+                // Update 3D background colors
+                update3DTheme(theme);
+            };
+            document.getElementById('theme-toggle-btn').addEventListener('click', () => {
+                const currentTheme = body.classList.contains('light') ? 'light' : 'dark';
+                applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+            });
+            const pages = document.querySelectorAll('.page-content');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const navigateTo = (hash) => {
+                hash = hash || '#home';
+                pages.forEach(page => page.classList.remove('active'));
+                const targetPage = document.getElementById('page-' + hash.substring(1));
+                if (targetPage) targetPage.classList.add('active');
+                else document.getElementById('page-home').classList.add('active');
+                window.scrollTo(0, 0);
+                navLinks.forEach(link => link.classList.toggle('active', link.getAttribute('href') === hash));
+                mobileMenu.classList.add('hidden');
+            };
+            window.addEventListener('hashchange', () => navigateTo(window.location.hash));
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    const hash = e.currentTarget.getAttribute('href');
+                    if (hash.startsWith('#')) { e.preventDefault(); window.location.hash = hash; }
+                });
+            });
+            document.getElementById('mobile-menu-button').addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+
+            // --- DYNAMIC CONTENT RENDERING ---
+            const eventContentContainer = document.getElementById('event-content');
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const renderEvents = (year) => {
+                const events = eventData[year];
+                eventContentContainer.innerHTML = events.map(event => `
+                    <div class="glass-card p-6 rounded-xl animate-fadeIn">
+                        <div class="flex justify-between items-start flex-wrap gap-2">
+                             <h4 class="font-semibold text-xl">${event.title}</h4>
+                             <span class="text-sm font-medium bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full flex-shrink-0">${event.date}</span>
+                        </div>
+                        <p class="body-text-muted mt-3 mb-4 text-justify">${event.description}</p>
+                        <div class="border-t border-white/10 pt-4 space-y-2">
+                             <p class="text-sm"><strong class="gradient-text">Objective:</strong> ${event.objective}</p>
+                             <p class="text-sm"><strong class="gradient-text">Outcome:</strong> ${event.outcome}</p>
+                        </div>
+                    </div>`).join('');
+            };
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    renderEvents(button.dataset.year);
+                });
+            });
+            const createMemberCard = (member, index, type) => `<div class="glass-card text-center p-6 rounded-2xl cursor-pointer" data-type="${type}" data-index="${index}"><h4 class="font-bold text-xl mb-1">${member.name}</h4><p class="body-text-muted text-sm font-medium gradient-text">${member.role}</p>${member.dept ? `<p class="body-text-muted text-xs font-mono mt-1">${member.dept}</p>` : ''}</div>`;
+            document.getElementById('faculty-team').innerHTML = facultyData.map((m, i) => createMemberCard(m, i, 'faculty')).join('');
+            document.getElementById('student-team').innerHTML = studentData.map((m, i) => createMemberCard(m, i, 'student')).join('');
+            
+            // --- MODAL LOGIC ---
+            const modal = document.getElementById('team-modal');
+            const modalContent = document.getElementById('modal-content');
+            const openModal = (member) => {
+                modalContent.innerHTML = `
+                    <button id="modal-close-btn" class="absolute top-3 right-4 text-gray-400 text-3xl hover:text-white transition">&times;</button>
+                    <div class="text-center">
+                        <h3 class="text-3xl font-bold">${member.name}</h3>
+                        <p class="gradient-text font-semibold text-lg mt-1">${member.role}</p>
+                        ${member.dept ? `<p class="body-text-muted font-mono text-sm mt-1">${member.dept}</p>` : ''}
+                    </div>
+                    <div class="border-t border-b border-white/10 my-6 py-4 text-center space-y-2">
+                        <a href="mailto:${member.email}" class="body-text-muted hover:text-indigo-400 transition-colors block text-sm">${member.email}</a>
+                        ${member.phone && member.phone !== '0' ? `<a href="tel:${member.phone}" class="body-text-muted hover:text-indigo-400 transition-colors block text-sm">${member.phone}</a>` : ''}
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-xl mb-2 text-center">Responsibilities</h4>
+                        <p class="body-text-muted text-sm text-justify">${member.responsibilities}</p>
+                    </div>`;
+                modal.classList.add('active');
+                document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+            };
+            const closeModal = () => modal.classList.remove('active');
+            document.querySelectorAll('[data-type]').forEach(card => card.addEventListener('click', () => {
+                const member = card.dataset.type === 'faculty' ? facultyData[card.dataset.index] : studentData[card.dataset.index];
+                openModal(member);
+            }));
+            modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+            // --- FORM LOGIC ---
+            document.getElementById('query-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                alert('Thank you for your query! We will get back to you soon.');
+                e.target.reset();
+            });
+
+            // --- NEW 3D BACKGROUND (Neural Network) ---
+            let scene, camera, renderer, particles, lines;
+            const canvas = document.getElementById('bg-canvas');
+            const mouse = new THREE.Vector2();
+            let darkThemeColors = { particle: 0x8b949e, line: 0x4f46e5 };
+            let lightThemeColors = { particle: 0x57606a, line: 0x4f46e5 };
+
+            const init3D = () => {
+                scene = new THREE.Scene();
+                camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+                camera.position.z = 150;
+
+                renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+                const particleCount = 200;
+                const positions = new Float32Array(particleCount * 3);
+                const velocities = new Float32Array(particleCount * 3);
+                const particleGeometry = new THREE.BufferGeometry();
+                
+                for(let i = 0; i < particleCount; i++) {
+                    positions[i*3] = (Math.random() - 0.5) * 400;
+                    positions[i*3+1] = (Math.random() - 0.5) * 400;
+                    positions[i*3+2] = (Math.random() - 0.5) * 400;
+                    velocities[i*3] = (Math.random() - 0.5) * 0.5;
+                    velocities[i*3+1] = (Math.random() - 0.5) * 0.5;
+                    velocities[i*3+2] = (Math.random() - 0.5) * 0.5;
+                }
+                particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                particleGeometry.setAttribute('velocity', new THREE.BufferAttribute(velocities, 3));
+                
+                const particleMaterial = new THREE.PointsMaterial({ size: 1.5 });
+                particles = new THREE.Points(particleGeometry, particleMaterial);
+                scene.add(particles);
+
+                const lineGeometry = new THREE.BufferGeometry();
+                const linePositions = new Float32Array(particleCount * particleCount * 3);
+                lineGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
+                const lineMaterial = new THREE.LineBasicMaterial({ transparent: true, opacity: 0.1 });
+                lines = new THREE.LineSegments(lineGeometry, lineMaterial);
+                scene.add(lines);
+
+                window.addEventListener('resize', onWindowResize, false);
+                window.addEventListener('mousemove', onMouseMove, false);
+                animate();
+            };
+
+            const animate = () => {
+                const positions = particles.geometry.attributes.position.array;
+                const velocities = particles.geometry.attributes.velocity.array;
+                const linePositions = lines.geometry.attributes.position.array;
+                let vertexpos = 0;
+
+                for(let i=0; i<positions.length/3; ++i){
+                    positions[i*3] += velocities[i*3];
+                    positions[i*3+1] += velocities[i*3+1];
+                    positions[i*3+2] += velocities[i*3+2];
+                    if(positions[i*3+1] < -200 || positions[i*3+1] > 200) velocities[i*3+1] *= -1;
+                    if(positions[i*3] < -200 || positions[i*3] > 200) velocities[i*3] *= -1;
+                    if(positions[i*3+2] < -200 || positions[i*3+2] > 200) velocities[i*3+2] *= -1;
+                    
+                    for (let j = i + 1; j < positions.length/3; j++) {
+                        const dx = positions[i*3] - positions[j*3];
+                        const dy = positions[i*3+1] - positions[j*3+1];
+                        const dz = positions[i*3+2] - positions[j*3+2];
+                        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+                        if (dist < 50) {
+                            linePositions[vertexpos++] = positions[i*3];
+                            linePositions[vertexpos++] = positions[i*3+1];
+                            linePositions[vertexpos++] = positions[i*3+2];
+                            linePositions[vertexpos++] = positions[j*3];
+                            linePositions[vertexpos++] = positions[j*3+1];
+                            linePositions[vertexpos++] = positions[j*3+2];
+                        }
+                    }
+                }
+                
+                lines.geometry.attributes.position.needsUpdate = true;
+                lines.geometry.setDrawRange(0, vertexpos / 3);
+                particles.geometry.attributes.position.needsUpdate = true;
+
+                camera.position.x += (mouse.x * 50 - camera.position.x) * 0.05;
+                camera.position.y += (-mouse.y * 50 - camera.position.y) * 0.05;
+                camera.lookAt(scene.position);
+
+                requestAnimationFrame(animate);
+                renderer.render(scene, camera);
+            };
+            
+            const update3DTheme = (theme) => {
+                const colors = theme === 'light' ? lightThemeColors : darkThemeColors;
+                if (particles && lines) {
+                    particles.material.color.setHex(colors.particle);
+                    lines.material.color.setHex(colors.line);
+                }
+            };
+            
+            const onWindowResize = () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            };
+
+            const onMouseMove = (event) => {
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            };
+
+            init3D();
+            
+            // --- INITIALIZATION ---
+            const preferredTheme = localStorage.getItem('theme') || 'dark';
+            applyTheme(preferredTheme);
+            navigateTo(window.location.hash || '#home');
+            document.querySelector('.tab-btn[data-year="2024-2025"]').click();
+        });
+    </script>
+</body>
+</html>
